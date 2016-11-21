@@ -1,0 +1,4 @@
+git add PROTOTYPE.cpp  main.cpp  PROTOTYPE.h
+git commit -m "first commit"
+git push origin master
+
