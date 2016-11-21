@@ -3,6 +3,7 @@
 #include <string>
 #include <omp.h>
 #include <math.h>
+#include <vector>
 // #include "function.h"
 #include "PROTOTYPE.h"
 using namespace std;
@@ -11,7 +12,13 @@ using namespace std;
 int main()
 {
   parameter p;
+  vector<int> a;
+  vector<double> b;
+  a.resize(11,0.0);
+  b.resize(7,0.0);
   p.set_param(p);
-  // p.draw_frames=1;
-  cout<<"ne="<<p.ne<<endl;
+  p.get_param(p,a,b);
+  cout<<"a.ne="<<a[0]<<endl;
+  cout<<p.ne<<endl;
+
 }

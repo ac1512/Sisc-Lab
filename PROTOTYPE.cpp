@@ -2,6 +2,7 @@
 // #include "function.h"
 #include <iostream>
 #include <fstream>
+#include <vector>
 using namespace std;
 
 void parameter::set_param(parameter &p)
@@ -62,7 +63,7 @@ else if(p.exl == 6)
      p.tstop= 2.0;
    }
    p.IT = 0;
-   p.time = 0.0;
+   p.tme = 0.0;
    p.eps  = 1.0e-6;
    p.htol = 1.0e-7;
    p.hdry = 1.0e-12;
@@ -70,4 +71,26 @@ else if(p.exl == 6)
    p.cfl = 0.5;
    p.g = 9.812;
 };
-# Sisc-Lab
+
+//function to get paramters for external use
+void parameter::get_param(parameter &p,vector<int>& a,vector<double>& b)
+{
+  a[0]=p.ne;
+  a[1]=p.exl;
+  a[2]=p.draw_frames;
+  a[3]=p.ord;
+  a[4]=p.mth_lim;
+  a[5]=p.mth_rk;
+  a[6]=p.Flux_method;
+  a[7]=p.wb;
+  a[8]=p.bdd;
+  a[9]=p.alpha;
+  a[10]=p.IT;
+  b[0]=p.tstop;
+  b[1]=p.eps;
+  b[2]=p.htol;
+  b[3]=p.hdry;
+  b[4]=p.nbc;
+  b[5]=p.cfl;
+  b[6]=p.g;
+}

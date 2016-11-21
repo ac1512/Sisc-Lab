@@ -1,12 +1,14 @@
 #ifndef  _PROTOTYPE_H_INCLUDED
 #define  _PROTOTYPE_H_INCLUDED
 
-
+#include <vector>
+using namespace std;
 class parameter
 {
     public:
         void set_param(parameter &p);
-    // private:
+        void get_param(parameter &p,vector<int>& a,vector<double>& b);
+     private:
     	int ne; //number of cells.
     	int exl;
     	int draw_frames;
@@ -18,7 +20,9 @@ class parameter
     	int bdd;
     	double tstop;
     	int alpha,IT;
-    	double time,eps,htol,hdry,nbc,cfl,g;
+    	double tme;
+        double eps;
+        double htol,hdry,nbc,cfl,g;
 
 };
 #endif
