@@ -83,4 +83,13 @@ void GetMesh(parameter &param, T Point, U NCell, T x){
   x[total] = Point[itv];
 };
 
+void GetSound(double g, double *h, double *c, int vec_length){
+  int i;
+
+  // g=9.812, b[6] in get_param function
+  for (i = 0; i < vec_length; i++){
+    c[i] = sqrt(g * h[i]);
+  }
+};
+
 #endif
