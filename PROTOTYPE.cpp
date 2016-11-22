@@ -5,10 +5,10 @@
 #include <vector>
 #include <numeric>
 using namespace std;
-
+const double pi = 3.14159;
 void parameter::set_param(void)
 {
-  double pi=3.14159;
+  // double pi=3.14159;
   // cout<<"set"<<pi<<endl;
 	ne=50;
   // cout<<ne<<endl;

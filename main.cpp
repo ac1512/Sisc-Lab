@@ -20,7 +20,7 @@ int main()
   p.set_param();
   p.get_param(a,b);
 //setting up the domain size
-  DMS(&xL,&xR,a);
+  DMS(&xL,&xR,a[2]);
   cout<<"==================================================="<<endl;
   cout<<"           make this code great again              "<<endl;
   cout<<"==================================================="<<endl;

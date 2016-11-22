@@ -49,7 +49,7 @@ void DMS(T *xL,T *xR,U &a1)  //DMS=Domain Setup
      *xR=1.0;
    }
 };
-// //
+//
 template <typename T,typename U>
 void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
 {
@@ -116,7 +116,7 @@ void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
     }
   }
 }
-//yogi
+// //yogi
 template <typename T>
 void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 
@@ -149,7 +149,7 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 			}
 		}else{
 			int D=1;
-			double delta=0.019, gamma;
+			double delta=0.019, gamma,x_a;
 			gamma=sqrt(3*delta/(4*D));
 			x_a=2.178272/gamma;
 			for(j=0;j<nx;j++){
@@ -239,17 +239,17 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 //
 
 
-
-
-
-
-
-
-
-
-
-
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 void GetSound(double g, double *h, double *c, int vec_length){
   int i;
 
@@ -276,4 +276,4 @@ void GetEigen(double *h, double *u, int vec_length,
   delete[] c;
 }
 
-#endif
+ #endif
