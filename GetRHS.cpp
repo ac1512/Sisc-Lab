@@ -7,7 +7,7 @@ using namespace std;
 template <typename T>
 RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T &uR, T &bR, parameter &p) {
 	int nx = p.nx, nbc = p.nbc;
-	int j, n=h.size();
+	int j, n=sizeof(h);
 	T w[n], dw[nx+nbc+1], db[nx + nbc + 1], du[nx + nbc + 1], dh[nx + nbc + 1];
 	for (j = 0; j < n; j++)
 		w[j] = h[j] + b[j];
@@ -45,7 +45,7 @@ template <typename T>
 void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, parameter &p){
 	
 	int nx=p.nx, nbc=p.nbc;
-	int j, n=u.size();
+	int j, n=sizeof(u);
 
 	T hL[n], hR[n], wL[n], wR[n], uL[n], uR[n], bL[n],bR[n];
 	RecCH(p, x, h, u, b, wL, hL, uL, bL, wR, hR, uR, bR);
