@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <math.h>
+#include "PROTOTYPE.h"
 
 using namespace std;
 const double pi = 3.14159;
