@@ -4,6 +4,7 @@
 #include <omp.h>
 #include <math.h>
 #include <vector>
+#include <numeric>
 #include "functions.hpp"
 #include "PROTOTYPE.h"
 using namespace std;
