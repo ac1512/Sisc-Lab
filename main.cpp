@@ -13,23 +13,17 @@ int main()
 {
   double xL=0.0,xR=0.0;
   parameter p;
-  vector<int> A;
-  vector<double> B;
-  A.resize(11,0.0);
-  B.resize(7,0.0);
+  vector<int> a;
+  vector<double> b;
+  a.resize(11,0.0);
+  b.resize(7,0.0);
   p.set_param();
-  p.get_param(A,B);
-  cout<<A[2]<<endl;
-  cout<<pi<<endl;
+  p.get_param(a,b);
 //setting up the domain size
-    DMS(&xL,&xR,A[2]);
-    // vector<double> iniCN_out;  //contains the output of the iniCN
-
+  DMS(&xL,&xR,a);
   cout<<"==================================================="<<endl;
-  cout<<"||           make this code great again             ||"<<endl;
+  cout<<"           make this code great again              "<<endl;
   cout<<"==================================================="<<endl;
- // double nbc;
- // nbc=b[4];
 
 
 
