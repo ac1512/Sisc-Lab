@@ -92,4 +92,21 @@ void GetSound(double g, double *h, double *c, int vec_length){
   }
 };
 
+void GetEigen(double *h, double *u, int vec_length,
+              double *eigL, double *eigR, double g){
+  double *c;
+  int i;
+
+  c = new double [vec_length];
+
+  GetSound(g, h, c, vec_length);
+
+  for(i = 0; i < vec_length; i++){
+    eigL[i] = u[i] - c[i];
+    eigR[i] = u[i] + c[i];
+  }
+
+  delete[] c;
+}
+
 #endif

@@ -18,8 +18,8 @@ int main()
   vector<double> b;
   a.resize(11,0.0);
   b.resize(7,0.0);
-  p.set_param(p);
-  p.get_param(p,a,b);
+  p.set_param();
+  p.get_param(a,b);
 //setting up the domain size
     DMS(&xL,&xR,a);
   cout<<"==================================================="<<endl;
