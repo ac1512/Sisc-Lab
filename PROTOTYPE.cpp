@@ -1,5 +1,5 @@
 #include "PROTOTYPE.h"
-// #include "function.h"
+// #include "functions.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -70,7 +70,7 @@ else if(p.exl == 6)
    p.nbc = 2;
    p.cfl = 0.5;
    p.g = 9.812;
-};
+}
 
 //function to get paramters for external use
 void parameter::get_param(parameter &p,vector<int>& a,vector<double>& b)

@@ -4,13 +4,14 @@
 #include <omp.h>
 #include <math.h>
 #include <vector>
-// #include "function.h"
+#include "functions.hpp"
 #include "PROTOTYPE.h"
 using namespace std;
 // const double pi = 3.14159;
 // class parameter p;
 int main()
 {
+  double xL=0.0,xR=0.0;
   parameter p;
   vector<int> a;
   vector<double> b;
@@ -18,7 +19,9 @@ int main()
   b.resize(7,0.0);
   p.set_param(p);
   p.get_param(p,a,b);
-  cout<<"a.ne="<<a[0]<<endl;
-  cout<<p.ne<<endl;
-
+//setting up the domain size
+    DMS(&xL,&xR,a);
+  cout<<"==================================================="<<endl;
+  cout<<"           make this code great again              "<<endl;
+  cout<<"==================================================="<<endl;
 }
