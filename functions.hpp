@@ -307,4 +307,48 @@ void GetEigen(double *h, double *u, int vec_length,
   delete[] c;
 }
 
+template <typename T>
+GetFlux( T &h, T &u, T &f1, T &f2, parameter &p) {
+	int n = sizeof(h);
+	for (int j = 0; j < n;j++) {
+		f1[j] = h[j] * u[j];
+		f2[j] = h[j] * u[j] * u[j] + 0.5*p.g*h[j] * h[j];
+	}
+}
+
+template <typename T>
+void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, parameter &p){
+	
+	int fluxmethod=p.Flux_method;
+	int j, n=sizeof(uL);
+	T fhL[n], fmL[n], eigL1[n], eigL2[n], eigR1[n], eigR2[n], mL[n], mR[n], sL[n], sR[n],s[n];
+	GetFlux(hL,uL, fhL, fmL, p);
+	GetFlux(hR, uR, fhR, fmR, p);
+	GetEigen(hL,uL,n,eigL1,eigL2,p.g);
+	GetEigen(hR, uR, n, eigR1, eigR2, p.g);
+	for (int j = 0; j < n; j++) {
+		mL[j] = hL[j] * uL[j];
+		mR[j] = hR[j] * uR[j];
+		sL[j] = (((eigL1 < eigR1) ? eigL1 : eigR1) < pow(10, -8)) ? (eigL1 < eigR1) ? eigL1 : eigR1):pow(10, -8);
+		sR[j] = (((eigL2>eigR2) ? eigL2 : eigR2) > pow(10, -8)) ? (eigL2 > eigR2) ? eigL2 : eigR2):pow(10, -8);
+	}
+	if (fluxmethod == 1) {
+		for (int j = 0; j < n; j++) {
+			s[j] = (sL[j] > sR[j]) ? sL[j] : sR[j];
+			fh[j] = 0.5*(fhL + fhR - s[j] * (hR[j] - hL[j]));
+			fm[j] = 0.5*(fmL + fmR - s[j] * (mR[j] -mL[j]));
+		}
+	}else if (fluxmethod == 2) {
+		for (int j = 0; j < n; j++) {
+			fh[j] = (sR[j]*fhL - sL[j]* fhR + sL[j] *sR[j]* (hR[j] - hL[j]))/(sR[j]-sL[j]);
+			fm[j] = (sR[j] * fmL - sL[j] * fmR + sL[j] * sR[j] * (mR[j] - mL[j])) / (sR[j] - sL[j]);
+		}
+	}else if (fluxmethod == 3) {
+		for (int j = 0; j < n; j++) {
+			fh[j] = (sR[j] * fhL - sL[j] * fhR - sL[j] * sR[j] * (hL[j] - hR[j])) / (sR[j] - sL[j]);
+			fm[j] = (sR[j] * fmL - sL[j] * fmR - sL[j] * sR[j] * (mL[j] - mR[j])) / (sR[j] - sL[j]);
+		}
+	}
+}
+
  #endif
