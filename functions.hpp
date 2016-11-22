@@ -202,7 +202,38 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 		}
 	}
 }
-//
+//chew
+template <typename T, typename U>
+void GetMesh(parameter &param, T Point, U NCell, T x){
+  int i, nitv, itv, total, istart;
+  double dx;
+  // if NCell is a vector of integers that counts number of discretized grids
+  // between physical distances defined in Points, for example:
+  // physical coordinates in Points = [0.0, 10.0, 15.0] & NCell = [50, 25]
+  // there has to be someway to count the entries in NCell, so the grid domain
+  // can be properly discretized.
+
+  nitv = NCell.size();
+
+  //Calculates total discretized grids over the whole domain.
+  total = accumulate(NCell.begin(), NCell.end(), 0.0);
+
+  //store the sum of the grid points into param struct
+  param.set_paramNx(total);
+
+  // filling in physical coordinates for grid points into x vector
+  istart = 0;
+  for (itv = 0; itv < nitv; itv++){
+    dx = (Point[itv+1] - Point[itv])/NCell[itv];
+    for (i = 0; i < NCell[itv]; i++){
+      x[i+istart] = Point[itv] + i*dx;
+    }
+    istart = i;
+  }
+
+  //coordinate of last grid point
+  x[total] = Point[itv];
+};
 //
 // template <typename T,typename U>
 // void iniCN(T xl,T xr,T *out,U &A,U &B,parameter &p)
