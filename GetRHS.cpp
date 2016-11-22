@@ -62,7 +62,7 @@ void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, parameter &p){
 		dpR[j] = p.g*(hR[j] + hRs[j])*(bo[j] - bR[j]) / 2;
 	}
 	T fh[nx + nbc+1], fm[nx + nbc + 1], fmL[nx + nbc + 1], fmR[nx + nbc + 1];
-	GetNumFlux(*(hLs+nbc), *(uL + nbc), *(hRs + nbc), *(uR+ nbc), *(fh + nbc), *(fm + nbc));
+	GetNumFlux(*(hLs+nbc), *(uL + nbc), *(hRs + nbc), *(uR+ nbc), *(fh + nbc), *(fm + nbc),parameter &p);
 	for (j = nbc; j < (nx + nbc+1); j++) {
 		fmL[j] = fm[j] + dpL[j];
 		fmR[j] = fm[j] + dpR[j];
