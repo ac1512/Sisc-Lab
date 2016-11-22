@@ -41,7 +41,7 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 			int D=1; 
 			double delta=0.019, gamma;
 			gamma=sqrt(3*delta/(4*D));
-			x_a=a2.178272/gamma;
+			x_a=2.178272/gamma;
 			for(j=0;j<nx;j++){
 				if (D + delta / (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a))) - b[j] > 0)
 					h[j] = D + delta / (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a))) - b[j];
