@@ -6,10 +6,12 @@ using namespace std;
 class parameter
 {
     public:
-        void set_param(parameter &p);
-        void get_param(parameter &p,vector<int>& a,vector<double>& b);
+        void set_param(void);
+        void get_param(vector<int>& a,vector<double>& b);
+        void set_paramNx(int total);
      private:
     	int ne; //number of cells.
+      int nx;
     	int exl;
     	int draw_frames;
     	int ord;   // holds the order of the numerical scheme.
