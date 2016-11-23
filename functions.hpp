@@ -349,6 +349,14 @@ void GetDt(double *x, double *h, double *u, double *dt,
 
 }
 
+void GetHydroPre(double *h, int vec_length, double g, double *p){
+  int i;
+
+  for (i = 0; i < vec_length; i++){
+    p[i] = 0.5*g*h[i]*h[i];
+  }
+}
+
 template <typename T>
 void GetFlux( T &h, T &u, T &f1, T &f2, parameter &p) {
 	int n = sizeof(h);
@@ -360,7 +368,7 @@ void GetFlux( T &h, T &u, T &f1, T &f2, parameter &p) {
 
 template <typename T>
 void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, parameter &p){
-	
+
 	int fluxmethod=p.Flux_method;
 	int j, n=sizeof(uL);
 	double fhL[n], fmL[n], fhR[n], fmR[n],eigL1[n], eigL2[n], eigR1[n], eigR2[n], mL[n], mR[n], sL[n], sR[n],s[n];
