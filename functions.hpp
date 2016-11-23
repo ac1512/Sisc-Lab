@@ -308,7 +308,7 @@ void GetEigen(double *h, double *u, int vec_length,
 }
 
 template <typename T>
-GetFlux( T &h, T &u, T &f1, T &f2, parameter &p) {
+void GetFlux( T &h, T &u, T &f1, T &f2, parameter &p) {
 	int n = sizeof(h);
 	for (int j = 0; j < n;j++) {
 		f1[j] = h[j] * u[j];
