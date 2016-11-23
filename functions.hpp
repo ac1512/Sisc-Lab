@@ -203,8 +203,8 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 	}
 }
 //chew
-template <typename T, typename U>
-void GetMesh(parameter &param, T Point, U NCell, T x){
+template <typename T, typename U, typename V>
+void GetMesh(parameter &param, T *Point, U &NCell, V &x){
   int i, nitv, itv, total, istart;
   double dx;
   // if NCell is a vector of integers that counts number of discretized grids
@@ -218,8 +218,10 @@ void GetMesh(parameter &param, T Point, U NCell, T x){
   //Calculates total discretized grids over the whole domain.
   total = accumulate(NCell.begin(), NCell.end(), 0.0);
 
-  //store the sum of the grid points into param struct
+  //store the sum of the cells (grid points = Cells + 1) into param struct
   param.set_paramNx(total);
+
+  x.resize(total+1,0.0);
 
   // filling in physical coordinates for grid points into x vector
   istart = 0;
@@ -305,6 +307,46 @@ void GetEigen(double *h, double *u, int vec_length,
   }
 
   delete[] c;
+}
+
+void GetDt(double *x, double *h, double *u, double *dt,
+           int Nx, double g, double cfl){
+
+  double *eigL, *eigR, *dx, *lambda, *tmp_calc;
+  double tmp, min;
+  int i;
+
+  eigL = new double [Nx];
+  eigR = new double [Nx];
+  dx = new double [Nx];
+  lambda = new double [Nx];
+  tmp_calc = new double [Nx];
+
+  GetEigen(h, u, Nx, eigL, eigR, g);
+
+  min = 1e10;
+  for (i = 0; i < Nx ; i++){
+    dx[i] = x[i+1] - x[i];
+    tmp = (fabs(eigL[i]) >= fabs(eigR[i]))? fabs(eigL[i]):fabs(eigR[i]);
+    lambda[i] = tmp + 1e-16;
+
+    tmp_calc[i] = dx[i]/lambda[i];
+    min = (min < tmp_calc[i])? min:tmp_calc[i];
+  }
+
+  tmp = min*cfl;
+  *dt = tmp;
+
+  if (tmp < 1e-10){
+    printf("Error: Dt = %e is too small!\n", tmp);
+  }
+
+  delete[] eigL;
+  delete[] eigR;
+  delete[] dx;
+  delete[] lambda;
+  delete[] tmp_calc;
+
 }
 
 template <typename T>
