@@ -321,7 +321,7 @@ void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, parameter &p){
 	
 	int fluxmethod=p.Flux_method;
 	int j, n=sizeof(uL);
-	double fhL[n], fmL[n], eigL1[n], eigL2[n], eigR1[n], eigR2[n], mL[n], mR[n], sL[n], sR[n],s[n];
+	double fhL[n], fmL[n], fhR[n], fmR[n],eigL1[n], eigL2[n], eigR1[n], eigR2[n], mL[n], mR[n], sL[n], sR[n],s[n];
 	GetFlux(hL,uL, fhL, fmL, p);
 	GetFlux(hR, uR, fhR, fmR, p);
 	GetEigen(hL,uL,n,eigL1,eigL2,p.g);
