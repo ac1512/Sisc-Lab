@@ -401,4 +401,174 @@ void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, parameter &p){
 	}
 }
 
+template <typename T, typename U>
+void SetBDC(double *h0, double *u0, double *b0, int b0_length,
+            T &paramvec_a, T &paramvec_b, double *h, double *u, double *b){
+  int i, j;
+  int nx, iL, iR, nbc, *iBL, *iBR;
+  double g;
+
+  nx = paramvec_a[1]; //parameter variable of Nx
+  nbc = paramvec_a[12]; //parameter variable of nbc
+  g = paramvec_b[6]; //parameter variable of g
+
+  for(i = 0; i < b0_length ; i++){
+    b[i] = b0[i];
+  }
+
+  for (i = 0; i < nx; i++){
+    h[i+nbc] = h0[i];
+    u[i+nbc] = u0[i];
+  }
+
+  iL = nbc;
+  iR = iL + nx - 1;
+
+  for (i = 0; i < iL; i++){
+    iBL[i] = i; // indices of lhs ghost cells
+  }
+
+  for (i = 0 ; i < nbc; i++){ //TODO :Check the indices properly!
+    iBR[i] = iR + i; // indices of rhs ghost cells
+  }
+
+  if (paramvec_a[2] == 0){
+  // left boundary condition
+    for (i = 0; i < nbc; i++){
+      j = iL - i;
+      b[j] = b[iL];
+      h[j] = h[iL];
+      u[j] = u[iL];
+    }
+  // right boundary condition
+    for (i = 0; i < nbc; i++){
+      j = iR + i;
+      b[j] = b[iR];
+      h[j] = h[iR];
+      u[j] = u[iR];
+    }
+  }
+  else if (paramvec_a[2] == 1){
+    if (paramvec_a[9] = 1){
+      h[1] = h[nx + nbc - 1];
+      h[0] = h[nx + nbc - 2];
+      u[1] = u[nx-1];
+      u[0] = u[nx + nbc - 2];
+
+      h[nx + nbc] = h[nbc];
+      h[nx + nbc + 1] = h[nbc + 1];
+      u[nx + nbc] = u[nbc];
+      u[nx + nbc + 1] = u[nbc + 1];
+    }
+    else{
+      for (i = 0; i < iL ; i++){
+        iBL[i] = i; // indices of lhs ghost cells
+        h[i] = h[iR];
+        u[i] = u[iR];
+      }
+
+      for (i = 0 ; i < nbc; i++){ //TODO :Check the indices properly!
+        iBR[i] = iR + i; // indices of rhs ghost cells
+        h[iBR[i]] = h[iL];
+        u[iBR[i]] = u[iL];
+      }
+    }
+  }
+  else if (paramvec_a[2] == 3){
+    h[1] = 1.0;
+    h[0] = 1.0;
+
+    for (i = 0; i < iL; i++){
+      u[iBL[i]] = 0.0;
+    }
+    for (i = 0 ; i < nbc; i++){
+      h[iBR[i]] = 0.0 * iBR[i];
+      u[iBR[i]] = 0.0 * iBR[i];
+    }
+  }
+  else if (paramvec_a[2] == 4){
+    for (i = 0; i < iL; i++){
+      h[iBL[i]] = h[iL];
+      b[iBL[i]] = b[iL];
+    }
+
+    if (h[nbc] >= paramvec_b[2]){
+      for (i = 0; i < iL; i++){
+        u[iBL[i]] = u[nbc]*h[nbc]/h[nbc-1];
+      }
+    }
+    else{
+      for (i = 0; i < iL; i++){
+        u[iBL[i]] = 0.0;
+      }
+    }
+
+    for (i = 0 ; i < nbc; i++){
+      h[iBR[i]] = h[iR];
+      b[iBR[i]] = b[iR];
+    }
+
+    if (h[iR+1] >= paramvec_b[2]){
+      for (i = 0 ; i < nbc; i++){
+        u[iBR[i]] = u[iR]*h[iR]/h[iR+1];
+      }
+    }
+    else{
+      for (i = 0 ; i < nbc; i++){
+        u[iBR[i]] = 0.0;
+      }
+    }
+  }
+  else if (paramvec_a[2] == 41){
+    for (i = 0; i < iL; i++){
+      h[iBL[i]] = h[iL];
+      u[iBL[i]] = 0.0;
+    }
+    for (i = 0 ; i < nbc; i++){
+      h[iBR[i]] = h[iR];
+    }
+
+    if (h[iR+1] >= paramvec_b[2]){
+      for (i = 0 ; i < nbc; i++){
+        u[iBR[i]] = u[iR]*h[iR]/h[iR+1];
+      }
+    }
+    else{
+      for (i = 0 ; i < nbc; i++){
+        u[iBR[i]] = 0.0;
+      }
+    }
+  }
+  else if (paramvec_a[2] == 42){
+    for (i = 0; i < iL; i++){
+      h[iBL[i]] = h[iL];
+      u[iBL[i]] = 0.0;
+    }
+    for (i = 0 ; i < nbc; i++){
+      h[iBR[i]] = h[iR];
+      u[iBR[i]] = u[iR];
+    }
+  }
+  else if (paramvec_a[2] == 5){
+    for (i = 0; i < iL ; i++){
+      h[iBL[i]] = h[iR];
+      u[iBL[i]] = 0.0;
+    }
+    for (i = 0 ; i < nbc; i++){
+      h[iBR[i]] = h[iL];
+      u[iBR[i]] = 0.0;
+    }
+  }
+  else if (paramvec_a[2] == 6){
+    for (i = 0; i < iL ; i++){
+      h[iBL[i]] = h[iL];
+      u[iBL[i]] = 0.0;
+    }
+    for (i = 0 ; i < nbc; i++){
+      h[iBR[i]] = h[iR];
+      u[iBR[i]] = 0.0;
+    }
+  }
+}
+
  #endif
