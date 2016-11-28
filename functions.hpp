@@ -117,29 +117,29 @@ void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
   }
 }
 // //yogi
-template <typename T>
-void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
+template <typename U,typename T>
+void SetInitU(U &A,T &B, T &x, T &b,T &h, T &u){
 
-	int nx=p.nx;
+	int nx=A[1];
 	int j;
-	T xc[nx];
+	T xc(nx,0.0);
 	for(j=0; j<nx;j++)
 		xc[j]=0.5*(x[j]+x[j+1]);
 
-	if (p.exl==0){
+	if (A[2]==0){
 		for(j=0;j<nx;j++){
 			h[j]=0.1+0.0*xc[j];
 			u[j]=1.5+0.0*xc[j];
 		}
-	}else if(p.exl==1){
+	}else if(A[2]==1){
 		double th;
 		for(j=0;j<nx;j++){
 			th=cos(2*pi*xc[j]);
 			h[j]=5.0+exp(th);
 			u[j]=sin(th)/h[j];
 		}
-	}else if(p.exl==3){
-		if(p.wb==1){		//test well-balancing
+	}else if(A[2]==3){
+		if(A[8]==1){		//test well-balancing
 			for(j=0;j<nx;j++){
 				if (1 - b[j] > 0)
 					h[j] = 1 - b[j];
@@ -157,11 +157,11 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 					h[j] = D + delta / (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a))) - b[j];
 				else
 					h[j] = 0;
-				u[j]=sqrt(p.g/D)*delta/ (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a)));
+				u[j]=sqrt(B[5]/D)*delta/ (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a)));
 			}
 		}
-	}else if(p.exl==4||p.exl==41){
-		double alpha=p.alpha;
+	}else if(A[2]==4||A[2]==41){
+		double alpha=A[10];
 		for(j=0;j<nx;j++){
 			h[j]=0;
 			if(xc[j]<0)
@@ -169,8 +169,8 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 			u[j]=0.0;
 
 		}
-	}else if(p.exl==42||p.exl==41){
-		double alpha=p.alpha;
+	}else if(A[2]==42||A[2]==41){
+		double alpha=A[10];
 		for(j=0;j<nx;j++){
 			h[j]=0;
 			if(xc[j]<0)
@@ -179,14 +179,14 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 				h[j]=1+xc[j]*tan(alpha);
 			u[j]=0.0;
 		}
-	}else if (p.exl==5){
+	}else if (A[2]==5){
 		for(j=0;j<nx;j++){
 			h[j]=2+0.0*xc[j]-b[j];
 			u[j]=0.0*xc[j];
 		}
-	}else if (p.exl==6){
+	}else if (A[2]==6){
 		for(j=0;j<nx;j++){
-			if(xc>0.5){
+			if(xc[j]>0.5){
 				if (-1.5 - b[j] > 0)
 					h[j] = -1.5 - b[j];
 				else
@@ -203,9 +203,13 @@ void SetInitU(parameter &p, T &x, T &b,T &h, T &u){
 	}
 }
 //chew
+//V is vector class
+//T is double.
+//U ins int
 template <typename T, typename U, typename V>
 void GetMesh(parameter &param, T *Point, U &NCell, V &x){
-  int i, nitv, itv, total, istart;
+  int i, nitv, itv, total, istart,sz;
+  total=0;
   double dx;
   // if NCell is a vector of integers that counts number of discretized grids
   // between physical distances defined in Points, for example:
@@ -216,7 +220,12 @@ void GetMesh(parameter &param, T *Point, U &NCell, V &x){
   nitv = NCell.size();
 
   //Calculates total discretized grids over the whole domain.
-  total = accumulate(NCell.begin(), NCell.end(), 0.0);
+  // total = accumulate(NCell.begin(), NCell.end(), 0.0);
+  sz=NCell.size();
+  for(int i=0;i<sz;i++)
+  {
+    total=total+NCell[i];
+  }
 
   //store the sum of the cells (grid points = Cells + 1) into param struct
   param.set_paramNx(total);
@@ -237,52 +246,50 @@ void GetMesh(parameter &param, T *Point, U &NCell, V &x){
   x[total] = Point[itv];
 };
 //
-// template <typename T,typename U>
-// void iniCN(T xl,T xr,T *out,U &A,U &B,parameter &p)
-// {
-//   //out contains the output paramters
-//   //inp contains the parameters in this case its A.
-//   double nx=A[0];
-//   double nbc=B[4];
-//   //add get_mesh;
-//
+template <typename T,typename U,typename D>
+void iniCN(D xl,D xr,T &out,T &b,T &ho,T &uo,U &A,T &B,parameter &p)
+{
+  //out contains the output
+  //inp contains the parameters in this case its A.
+  double nx=A[0];
+  double nbc=B[4],dx;
+  double *Point=new double[2];
+  Point[0]=xl;
+  Point[1]=xr;
+  vector<double> Ncell;
+  Ncell.resize(1,0.0);
+  Ncell[0]=A[0];
+  //add get_mesh;
+GetMesh(p,Point,Ncell,out);
 //   //
-//   vector<double> i;
-//   i.resize(nx+1+2*nbc);
-//   for(int k=0;k<(nx+1+2*nbc);k++)
-//   {
-//     i[k]=k+1;
-//   }
-//   dx=(xr-xl)/nx;
-//   vector<double> x_bed;
-//   for(int k=0;k<(nx+1+2*nbc);k++)
-//   {
-//     x_bed[i]=xl+(i[k]-(nbx+1))*dx; //with bdd cells.
-//   }
-//   //adding setbed
-//
-//
-//   //
-//
+  vector<double> i;
+  i.resize(nx+1+2*nbc);
+  for(int k=0;k<(nx+1+2*nbc);k++)
+  {
+    i[k]=k+1;
+  }
+  dx=(xr-xl)/nx;
+  vector<double> x_bed;
+  for(int k=0;k<(nx+1+2*nbc);k++)
+  {
+    x_bed[k]=xl+(i[k]-(nbc+1))*dx; //with bdd cells.
+  }
+//   // adding setbed
+setbed(x_bed,A,B,b);
+// //
+vector<double> b_sec;
+b_sec.resize(nx);
+for(int j=0;j<nx;j++)
+{
+  b_sec[j]=b[nbc+j];
+}
 //   //add setInitU
-//
-//   //
-// }
+SetInitU(A,B,out,b_sec,ho,uo);
+
+}
 //
 //
 
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 void GetSound(double g, double *h, double *c, int vec_length){
   int i;
 
