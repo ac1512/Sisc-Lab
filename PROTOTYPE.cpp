@@ -88,13 +88,14 @@ void parameter::get_param(vector<int>& a,vector<double>& b)
   a[9]=bdd;
   a[10]=alpha;
   a[11]=IT;
-	a[12]=nbc;
+  a[12]=nbc;
   b[0]=tstop;
   b[1]=eps;
   b[2]=htol;
   b[3]=hdry;
   b[4]=cfl;
   b[5]=g;
+  b[6]=tme;
 }
 
 void parameter::set_paramNx(int total){

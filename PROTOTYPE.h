@@ -11,7 +11,7 @@ class parameter
         void set_paramNx(int total);
      private:
     	int ne; //number of cells.
-      int nx;
+        int nx;
     	int exl;
     	int draw_frames;
     	int ord;   // holds the order of the numerical scheme.

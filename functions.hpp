@@ -5,6 +5,7 @@
 #include <vector>
 #include <math.h>
 #include "PROTOTYPE.h"
+#include <numeric>
 
 using namespace std;
 const double pi = 3.14159;
@@ -53,11 +54,11 @@ void DMS(T *xL,T *xR,U &a1)  //DMS=Domain Setup
 template <typename T,typename U>
 void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
 {
-  double nx=A[2]; //value of expl.
+  double nx=A[1]; //value of expl.
   vector<double> xc;
-  xc.resize(nx+2*B[4],0.0); //B[4] contains nbc;
-  b.resize(nx+2*B[4],0.0);  //same as size of xc and contains the base profile and its the output of the function..
-  for(int i=0;i<(nx+2*B[4]);i++)
+  xc.resize(nx+2*A[12]+1,0.0); //A[12] contains nbc;
+  b.resize(nx+2*A[12]+1,0.0);  //same as size of xc and contains the base profile and its the output of the function..
+  for(int i=0;i<(nx+2*A[12]);i++)
   {
     xc[i]=(x[i]+x[i+1])/2;
   }
@@ -67,14 +68,14 @@ void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
     bL=-0.1;
     bR=-0.45;
     xgate=0.5;
-    for(int i=0;i<(nx+2*B[4]);i++)
+    for(int i=0;i<(nx+2*A[12]+1);i++)
     {
       b[i]=bL*(xc[i]<xgate)+bR*(xc[i]>xgate);
     }
   }
   else if(A[2]==1)
   {
-    for(int i=0;i<(nx+2*B[4]);i++)
+    for(int i=0;i<(nx+2*A[12]);i++)
     {
       b[i]=sin(pi*xc[i])*sin(pi*xc[i]);
     }
@@ -85,7 +86,7 @@ void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
     D=1;
     delta=0.019;
     x_a=sqrt(4*D/(3*delta))*acosh(sqrt(20.0));
-    for(int i=0;i<(nx+2*B[4]);i++)
+    for(int i=0;i<(nx+2*A[12]);i++)
     {
       if(xc[i]>=2*x_a)
       {
@@ -96,23 +97,24 @@ void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
   else if(A[2]==4||A[2]==41||A[3]==42)
   {
     double alpha=A[10];
-    for(int i=0;i<(nx+2*B[4]);i++)
+    for(int i=0;i<(nx+2*A[12]);i++)
     {
       b[i]=-tan(alpha)*xc[i];
     }
   }
   else if(A[2]==5)
   {
-    for(int i=0;i<(nx+2*B[4]);i++)
+    for(int i=0;i<(nx+2*A[12]);i++)
     {
       b[i]=sin(pi*xc[i])*sin(pi*xc[i]);
     }
   }
   else if(A[2]==6)
   {
-    for(int i=0;i<(nx+2*B[4]);i++)
+    for(int i=0;i<(nx+2*A[12]+1);i++)
     {
       b[i]=sin(4*pi*xc[i])*(xc[i]<=0.5)+(sin(4*pi*xc[i])-2.0)*(xc[i]>0.5);
+      // cout<<"b="<<b[i]<<endl;
     }
   }
 }
@@ -220,12 +222,12 @@ void GetMesh(parameter &param, T *Point, U &NCell, V &x){
   nitv = NCell.size();
 
   //Calculates total discretized grids over the whole domain.
-  // total = accumulate(NCell.begin(), NCell.end(), 0.0);
-  sz=NCell.size();
-  for(int i=0;i<sz;i++)
-  {
-    total=total+NCell[i];
-  }
+  total = accumulate(NCell.begin(), NCell.end(), 0.0);
+  // sz=NCell.size();
+  // for(int i=0;i<sz;i++)
+  // {
+  //   total=total+NCell[i];
+  // }
 
   //store the sum of the cells (grid points = Cells + 1) into param struct
   param.set_paramNx(total);
@@ -252,16 +254,24 @@ void iniCN(D xl,D xr,T &out,T &b,T &ho,T &uo,U &A,T &B,parameter &p)
   //out contains the output
   //inp contains the parameters in this case its A.
   double nx=A[0];
-  double nbc=B[4],dx;
+  double nbc=A[12],dx;
   double *Point=new double[2];
+  out.resize(nx+1,0.0);
   Point[0]=xl;
   Point[1]=xr;
   vector<double> Ncell;
   Ncell.resize(1,0.0);
   Ncell[0]=A[0];
+  ho.resize(nx,0.0);
+  uo.resize(nx,0.0);
   //add get_mesh;
 GetMesh(p,Point,Ncell,out);
-//   //
+  p.get_param(A,B);
+// for(int i=0;i<51;i++)
+// {
+//   cout<<"ho="<<out[i]<<endl;
+// }
+// //   //
   vector<double> i;
   i.resize(nx+1+2*nbc);
   for(int k=0;k<(nx+1+2*nbc);k++)
@@ -270,20 +280,25 @@ GetMesh(p,Point,Ncell,out);
   }
   dx=(xr-xl)/nx;
   vector<double> x_bed;
+  x_bed.resize(nx+1+2*nbc);
   for(int k=0;k<(nx+1+2*nbc);k++)
   {
     x_bed[k]=xl+(i[k]-(nbc+1))*dx; //with bdd cells.
   }
-//   // adding setbed
+// //   // adding setbed
 setbed(x_bed,A,B,b);
-// //
+// for(int i=0;i<(nx+2*A[12]);i++)
+// {
+//   cout<<"ho="<<b[i]<<endl;
+// }
+// // //
 vector<double> b_sec;
-b_sec.resize(nx);
+b_sec.resize(nx,0.0);
 for(int j=0;j<nx;j++)
 {
   b_sec[j]=b[nbc+j];
 }
-//   //add setInitU
+// //   //add setInitU
 SetInitU(A,B,out,b_sec,ho,uo);
 
 }
