@@ -78,40 +78,49 @@ void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T 
 	}
 }
 
-// template <typename T, typename U>
-// void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, U &a, double g){//g=parameter b[5]
-//
-// 	int nx=a[1], nbc=a[12];
-// 	int j, n=sizeof(u);
-//
-// 	vector<double> hL(n,0.0), hR(n,0.0), wL(n,0.0), wR(n,0.0), uL(n,0.0), uR(n,0.0), bL(n,0.0),bR(n,0.0);
-// 	RecCH(x, h, u, b, wL, hL, uL, bL, wR, hR, uR, bR, a);
-//
-//
-// 	vector<double> bmax(nx + nbc + 1,0.0), bo(nx + nbc + 1,0.0), wmin(nx + nbc + 1,0.0), hLs(nx + nbc + 1,0.0), hRs(nx + nbc + 1,0.0), dpL(nx + nbc + 1,0.0), dpR(nx + nbc + 1,0.0);
-// 	for (j = nbc; j < (nx + nbc + 1); j++) {
-// 		bmax[j] = (bL[j] > bR[j]) ? bL[j] : bR[j];
-// 		wmin[j] = (wL[j] < wR[j]) ? wL[j] : wR[j];
-// 		bo[j] = (bmax[j] < wmin[j]) ? bmax[j] : wmin[j];
-// 		hLs[j] = ((wL[j] - bo[j]) < hL[j]) ? (wL[j] - bo[j]) : hL[j];
-// 		hRs[j] = ((wR[j] - bo[j]) < hR[j]) ? (wR[j] - bo[j]) : hR[j];
-// 		dpL[j] = g*(hL[j] + hLs[j])*(bo[j]-bL[j]) / 2;
-// 		dpR[j] = g*(hR[j] + hRs[j])*(bo[j] - bR[j]) / 2;
-// 	}
-// 	vector<double> fh(nx + nbc+1,0.0), fm(nx + nbc + 1,0.0), fmL(nx + nbc + 1,0.0), fmR(nx + nbc + 1,0.0);
-// 	GetNumFlux((hLs+nbc), (uL + nbc), (hRs + nbc), (uR+ nbc), (fh + nbc), (fm + nbc), a, g);
-// 	for (j = nbc; j < (nx + nbc+1); j++) {
-// 		fmL[j] = fm[j] + dpL[j];
-// 		fmR[j] = fm[j] + dpR[j];
-// 	}
-// 	double dx[nx];
-// 	for (j = 0; j < nx; j++)
-// 		dx[j] = x[j + 1] - x[j];
-// 	for (j = 0; j < nx-1; j++) {
-// 		rhsH[j] = -1 * (fh[j + nbc + 1] - fh[nbc]) / dx[j];
-// 		rhsM[j]= -1 * (fmL[j + nbc + 1] - fmR[nbc]) / dx[j]- g*h[j+nbc]*(bL[j + nbc + 1] - bR[nbc])/dx[j];
-// 	}
-// }
+ template <typename T, typename U>
+ void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, U &a, double g){//g=parameter b[5]
+
+ 	int nx=a[1], nbc=a[12];
+ 	int j, n=nx+nbc+1;//sizeof(u);
+
+ 	vector<double> hL(n,0.0), hR(n,0.0), wL(n,0.0), wR(n,0.0), uL(n,0.0), uR(n,0.0), bL(n,0.0),bR(n,0.0);
+ 	RecCH(x, h, u, b, wL, hL, uL, bL, wR, hR, uR, bR, a);
+
+
+ 	vector<double> bmax(nx + nbc + 1,0.0), bo(nx + nbc + 1,0.0), wmin(nx + nbc + 1,0.0), hLs(nx + nbc + 1,0.0), hRs(nx + nbc + 1,0.0), dpL(nx + nbc + 1,0.0), dpR(nx + nbc + 1,0.0);
+
+ 	for (j = nbc; j < (nx + nbc + 1); j++) {
+ 		bmax[j] = (bL[j] > bR[j]) ? bL[j] : bR[j];
+		wmin[j] = (wL[j] < wR[j]) ? wL[j] : wR[j];
+ 		bo[j] = (bmax[j] < wmin[j]) ? bmax[j] : wmin[j];
+ 		hLs[j] = ((wL[j] - bo[j]) < hL[j]) ? (wL[j] - bo[j]) : hL[j];
+		hRs[j] = ((wR[j] - bo[j]) < hR[j]) ? (wR[j] - bo[j]) : hR[j];
+ 		dpL[j] = g*(hL[j] + hLs[j])*(bo[j]-bL[j]) / 2;
+ 		dpR[j] = g*(hR[j] + hRs[j])*(bo[j] - bR[j]) / 2;
+ 	}
+	vector<double> fh(nx+1,0.0), fm(nx+1,0.0), fmL(nx+1,0.0), fmR(nx+1,0.0);
+	vector<double> hLss(nx+1,0.0),uLs(nx+1,0.0),hRss(nx+1,0.0),uRs(nx+1,0.0);
+	for(int j=0;j<nx+1;j++){
+  		hLss[j]=hLs[nbc+j];
+		hRss[j]=hRs[nbc+j];
+		uLs[j]=uL[nbc+j];
+		uRs[j]=uR[nbc+j];
+	}
+	GetNumFlux(hLss, uLs, hRss, uRs, fh, fm, a, g);
+	for (j = 0; j < (nx+1); j++) {
+		fmL[j] = fm[j] + dpL[j+nbc];
+		fmR[j] = fm[j] + dpR[j+nbc];
+	}
+	vector<double> dx(nx,0.0);
+	for (j = 0; j < nx; j++)
+		dx[j] = x[j + 1] - x[j];
+	for (j = 0; j < nx; j++) {
+		rhsH[j] = -1 * (fh[j+ 1] - fh[j]) / dx[j];
+		rhsM[j]= -1 * (fmL[j+ 1] - fmR[j]) / dx[j]- g*h[j+nbc]*(bL[j + nbc + 1] - bR[j+nbc])/dx[j];
+	}
+}
+
 
 template<typename T,typename U>
 void Run(T &cnx,T &cnh,T &cnu,T &cnb,T &hresult,T &uresult,double &dt,U &A,T &B)
