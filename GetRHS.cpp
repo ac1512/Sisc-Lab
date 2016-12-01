@@ -38,16 +38,16 @@ double limit(double dul, double dur, int mth){
 }
 
 template <typename T>
-void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T &uR, T &bR, parameter &p) {
-	int nx = p.nx, nbc = p.nbc;
+void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T &uR, T &bR, int &a) {
+	int nx = a[1], nbc = a[12];
 	int j, n=sizeof(h);
 	double w[n], dw[nx+nbc+1], db[nx + nbc + 1], du[nx + nbc + 1], dh[nx + nbc + 1];
 	for (j = 0; j < n; j++)
 		w[j] = h[j] + b[j];
 	for (j = nbc - 1; j < (nx + nbc + 1); j++) {
-		dw[j] = limit(w[j] - w[j - 1], w[j + 1] - w[j], p.mth_lim);
-		db[j] = limit(b[j] - b[j - 1], b[j + 1] - b[j], p.mth_lim);
-		du[j] = limit(u[j] - u[j - 1], u[j + 1] - u[j], p.mth_lim);
+		dw[j] = limit(w[j] - w[j - 1], w[j + 1] - w[j], a[5]);
+		db[j] = limit(b[j] - b[j - 1], b[j + 1] - b[j], a[5]);
+		du[j] = limit(u[j] - u[j - 1], u[j + 1] - u[j], a[5]);
 		dh[j] = dw[j] - db[j];
 	}
 	for (j = nbc - 1; j < (nx + nbc + 1); j++) {
@@ -75,13 +75,13 @@ void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T 
 }
 
 template <typename T>
-void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, parameter &p){
+void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, int &a, double &paramb){
 	
-	int nx=p.nx, nbc=p.nbc;
+	int nx=a[1], nbc=a[12];
 	int j, n=sizeof(u);
 
 	double hL[n], hR[n], wL[n], wR[n], uL[n], uR[n], bL[n],bR[n];
-	RecCH(x, h, u, b, wL, hL, uL, bL, wR, hR, uR, bR, p);
+	RecCH(x, h, u, b, wL, hL, uL, bL, wR, hR, uR, bR, a);
 
 
 	double bmax[nx + nbc + 1], bo[nx + nbc + 1], wmin[nx + nbc + 1], hLs[nx + nbc + 1], hRs[nx + nbc + 1], dpL[nx + nbc + 1], dpR[nx + nbc + 1];
@@ -91,11 +91,11 @@ void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, parameter &p){
 		bo[j] = (bmax[j] < wmin[j]) ? bmax[j] : wmin[j];
 		hLs[j] = ((wL[j] - bo[j]) < hL[j]) ? (wL[j] - bo[j]) : hL[j];
 		hRs[j] = ((wR[j] - bo[j]) < hR[j]) ? (wR[j] - bo[j]) : hR[j];
-		dpL[j] = p.g*(hL[j] + hLs[j])*(bo[j]-bL[j]) / 2;
-		dpR[j] = p.g*(hR[j] + hRs[j])*(bo[j] - bR[j]) / 2;
+		dpL[j] = paramb[5]*(hL[j] + hLs[j])*(bo[j]-bL[j]) / 2;
+		dpR[j] = paramb[5]*(hR[j] + hRs[j])*(bo[j] - bR[j]) / 2;
 	}
 	double fh[nx + nbc+1], fm[nx + nbc + 1], fmL[nx + nbc + 1], fmR[nx + nbc + 1];
-	GetNumFlux(*(hLs+nbc), *(uL + nbc), *(hRs + nbc), *(uR+ nbc), *(fh + nbc), *(fm + nbc), p);
+	GetNumFlux(*(hLs+nbc), *(uL + nbc), *(hRs + nbc), *(uR+ nbc), *(fh + nbc), *(fm + nbc), a,b);
 	for (j = nbc; j < (nx + nbc+1); j++) {
 		fmL[j] = fm[j] + dpL[j];
 		fmR[j] = fm[j] + dpR[j];
@@ -105,7 +105,6 @@ void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, parameter &p){
 		dx[j] = x[j + 1] - x[j];
 	for (j = 0; j < nx-1; j++) {
 		rhsH[j] = -1 * (fh[j + nbc + 1] - fh[nbc]) / dx[j];
-		rhsM[j]= -1 * (fmL[j + nbc + 1] - fmR[nbc]) / dx[j]- p.g*h[j+nbc]*(bL[j + nbc + 1] - bR[nbc])/dx[j];
+		rhsM[j]= -1 * (fmL[j + nbc + 1] - fmR[nbc]) / dx[j]- paramb[5]*h[j+nbc]*(bL[j + nbc + 1] - bR[nbc])/dx[j];
 	}
 }
-
