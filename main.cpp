@@ -5,6 +5,7 @@
 #include <math.h>
 #include <vector>
 #include "functions.hpp"
+#include "function2.hpp"
 #include "PROTOTYPE.h"
 #include <numeric>
 using namespace std;
@@ -36,31 +37,12 @@ int nbc,nn,itstop;
 nbc=a[12];
 nn=a[0];
 itstop=10;
-// while((b[6]<b[0])&&(a[11]<10000000))
-// {
-//   a[11]=a[11]+1;
-// }
-//conversion of vectors into pointers
-// cout<<out1.size()<<endl;
-// cout<<out2.size()<<endl;
-// cout<<ho.size()<<endl;
-// cout<<uo.size()<<endl;
-//
-double* cn_x= new double[(int)out1.size()];
-double* cn_h= new double[(int)ho.size()];
-double* cn_u= new double[(int)uo.size()];
-double* cn_b= new double[(int)out2.size()];
-for(int i=0;i<out1.size();i++)
-     cn_x[i]=out1[i];
-for(int i=0;i<ho.size();i++)
-     cn_h[i]=ho[i];
-for(int i=0;i<uo.size();i++)
-     cn_u[i]=uo[i];
-for(int i=0;i<out2.size();i++)
-    cn_b[i]=out2[i];
-//get the timestep.
+//out1=cn_x,out2=cn_b,ho=cn_h,uo=cn_u
 double dt,Nx=a[1],g=b[5],cfl=b[4];
-GetDt(cn_x,cn_h,cn_u,&dt,Nx,g,cfl);
+GetDt(out1,ho,uo,&dt,g,cfl);
 cout<<dt<<endl;
-
+cout<<"uo"<<uo.size()<<endl;
+vector<double> hresult,uresult;
+ Run(out1,ho,uo,out2,hresult,uresult,dt,a,b);
+vector<double> d(4,0.0),gg(4,0.0);
 }
