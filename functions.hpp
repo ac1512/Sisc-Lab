@@ -305,49 +305,52 @@ SetInitU(A,B,out,b_sec,ho,uo);
 //
 //
 
-void GetSound(double g, double *h, double *c, int vec_length){
-  int i;
+void GetSound(double g, vector<double> &h, vector<double> &c){
+  int i, vec_length;
 
+  vec_length = c.size();
   // g=9.812, b[6] in get_param function
   for (i = 0; i < vec_length; i++){
     c[i] = sqrt(g * h[i]);
   }
 };
 
-void GetEigen(double *h, double *u, int vec_length,
-              double *eigL, double *eigR, double g){
-  double *c;
-  int i;
+template <typename T>
+void GetEigen(T &h, T &u, T &eigL, T &eigR, double g){
+  int i, vec_length;
 
-  c = new double [vec_length];
+  vec_length = eigL.size();
 
-  GetSound(g, h, c, vec_length);
+  vector<double> c (vec_length);
+
+  GetSound(g, h, c);
 
   for(i = 0; i < vec_length; i++){
     eigL[i] = u[i] - c[i];
     eigR[i] = u[i] + c[i];
   }
 
-  delete[] c;
 }
 
-void GetDt(double *x, double *h, double *u, double *dt,
-           int Nx, double g, double cfl){
+template <typename T>
+void GetDt(T &x, T &h, T &u, double *dt, double g, double cfl){
 
-  double *eigL, *eigR, *dx, *lambda, *tmp_calc;
   double tmp, min;
-  int i;
+  int i, size;
 
-  eigL = new double [Nx];
-  eigR = new double [Nx];
-  dx = new double [Nx];
-  lambda = new double [Nx];
-  tmp_calc = new double [Nx];
+  size = x.size() - 1;
 
-  GetEigen(h, u, Nx, eigL, eigR, g);
+  vector<double> dx (size);
+  vector<double> lambda (size);
+  vector<double> eigL (size);
+  vector<double> tmp_calc (size);
+  vector<double> eigR (size);
+
+
+  GetEigen(h, u, eigL, eigR, g);
 
   min = 1e10;
-  for (i = 0; i < Nx ; i++){
+  for (i = 0; i < size ; i++){
     dx[i] = x[i+1] - x[i];
     tmp = (fabs(eigL[i]) >= fabs(eigR[i]))? fabs(eigL[i]):fabs(eigR[i]);
     lambda[i] = tmp + 1e-16;
@@ -357,24 +360,19 @@ void GetDt(double *x, double *h, double *u, double *dt,
   }
 
   tmp = min*cfl;
-  *dt = tmp;
-
   if (tmp < 1e-10){
     printf("Error: Dt = %e is too small!\n", tmp);
   }
 
-  delete[] eigL;
-  delete[] eigR;
-  delete[] dx;
-  delete[] lambda;
-  delete[] tmp_calc;
-
+  *dt = tmp;
 }
 
-void GetHydroPre(double *h, int vec_length, double g, double *p){
-  int i;
+void GetHydroPre(vector<double> &h, double g, vector<double> &p){
+  int i, size_h;
 
-  for (i = 0; i < vec_length; i++){
+  size_h = h.size();
+
+  for (i = 0; i < size_h; i++){
     p[i] = 0.5*g*h[i]*h[i];
   }
 }
@@ -424,11 +422,13 @@ void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, parameter &p){
 }
 
 template <typename T, typename U>
-void SetBDC(double *h0, double *u0, double *b0, int b0_length,
-            T &paramvec_a, T &paramvec_b, double *h, double *u, double *b){
-  int i, j;
+void SetBDC(U &h0, U &u0, U &b0,
+            T &paramvec_a, U &paramvec_b, U &h, U &u, U &b){
+  int i, j, b0_length;
   int nx, iL, iR, nbc, *iBL, *iBR;
   double g;
+
+  b0_length = b0.size();
 
   nx = paramvec_a[1]; //parameter variable of Nx
   nbc = paramvec_a[12]; //parameter variable of nbc
