@@ -388,8 +388,8 @@ void GetFlux( T &h, T &u, T &f1, T &f2, double g) {//g=parameter b[5]
 	}
 }
 
-template <typename T>
-void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, int &a, double g){//g=parameter b[5]
+template <typename T, typename U>
+void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, U &a, double g){//g=parameter b[5]
 
 	int fluxmethod=a[7];
 	int j, n=sizeof(uL);
