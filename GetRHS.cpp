@@ -37,8 +37,8 @@ double limit(double dul, double dur, int mth){
 	return du;
 }
 
-template <typename T>
-void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T &uR, T &bR, int &a) {
+template <typename T, typename U>
+void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T &uR, T &bR, U &a) {
 	int nx = a[1], nbc = a[12];
 	int j, n=sizeof(h);
 	double w[n], dw[nx+nbc+1], db[nx + nbc + 1], du[nx + nbc + 1], dh[nx + nbc + 1];
@@ -74,8 +74,8 @@ void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T 
 	}
 }
 
-template <typename T>
-void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, int &a, double g){//g=parameter b[5]
+template <typename T, typename U>
+void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, U &a, double g){//g=parameter b[5]
 	
 	int nx=a[1], nbc=a[12];
 	int j, n=sizeof(u);
