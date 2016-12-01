@@ -132,42 +132,42 @@ void Run(T &cnx,T &cnh,T &cnu,T &cnb,T &hresult,T &uresult,double &dt,U &A,T &B)
   for(int i=0;i<cnh.size();i++)
      hu[i]=cnh[i]*cnu[i];
   int mrk=ord;
-  // for(int i=0;i<mrk;i++)
-  // {
-  //    if((mrk==2)&&(i==1))
-  //    {
-  //      for(int k=0;k<cnh.size();k++)
-  //      {
-  //        h1[k]=hu[k];
-  //        hu1[k]=hu[k];
-  //      }
-  //    }
-  //    SetBDC(cnh,cnu,cnb,A,B,h,u,b);
-  //    GetRHS(cnx,h,u,b,rhsH,rhsM,A,B[5]);
-  //    for(int k=0;k<cnh.size();k++)
-  //     {
-  //       cnh[k]=cnh[k]+dt*rhsH[k];
-  //       hu[k]=hu[k]+dt*rhsM[k];
-  //     }
-  //    if((mrk=2)&&(i==2))
-  //    {
-  //      for(int k=0;k<cnh.size();k++)
-  //      {
-  //        cnh[k]=0.5*(cnh[k]+h[k]);
-  //        hu[k]=0.5*(hu1[k]+hu[k]);
-  //      }
-  //    }
-  //    for(int k=0;k<cnu.size();k++)
-  //    {
-  //      cnu[k]=hu[k]/max(h[k],b[1]);
-  //    }
-	//
-      // }
-  // hresult.resize(cnh.size(),0.0);
-  // uresult.resize(cnh.size(),0.0);
-  // for(int k=0;k<cnh.size();k++)
-  //     hresult[k]=cnh[k];
-  // for(int k=0;k<cnu.size();k++)
-  //     uresult[k]=cnu[k];
+  for(int i=0;i<mrk;i++)
+  {
+     if((mrk==2)&&(i==1))
+     {
+       for(int k=0;k<cnh.size();k++)
+       {
+         h1[k]=hu[k];
+         hu1[k]=hu[k];
+       }
+     }
+     SetBDC(cnh,cnu,cnb,A,B,h,u,b);
+     GetRHS(cnx,h,u,b,rhsH,rhsM,A,B[5]);
+     for(int k=0;k<cnh.size();k++)
+      {
+        cnh[k]=cnh[k]+dt*rhsH[k];
+        hu[k]=hu[k]+dt*rhsM[k];
+      }
+     if((mrk=2)&&(i==2))
+     {
+       for(int k=0;k<cnh.size();k++)
+       {
+         cnh[k]=0.5*(cnh[k]+h[k]);
+         hu[k]=0.5*(hu1[k]+hu[k]);
+       }
+     }
+     for(int k=0;k<cnu.size();k++)
+     {
+       cnu[k]=hu[k]/max(h[k],b[1]);
+     }
+
+      }
+  hresult.resize(cnh.size(),0.0);
+  uresult.resize(cnh.size(),0.0);
+  for(int k=0;k<cnh.size();k++)
+      hresult[k]=cnh[k];
+  for(int k=0;k<cnu.size();k++)
+      uresult[k]=cnu[k];
 }
  #endif
