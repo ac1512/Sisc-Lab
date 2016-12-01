@@ -380,24 +380,24 @@ void GetHydroPre(double *h, int vec_length, double g, double *p){
 }
 
 template <typename T>
-void GetFlux( T &h, T &u, T &f1, T &f2, parameter &p) {
+void GetFlux( T &h, T &u, T &f1, T &f2, double g) {//g=parameter b[5]
 	int n = sizeof(h);
 	for (int j = 0; j < n;j++) {
 		f1[j] = h[j] * u[j];
-		f2[j] = h[j] * u[j] * u[j] + 0.5*p.g*h[j] * h[j];
+		f2[j] = h[j] * u[j] * u[j] + 0.5*g*h[j] * h[j];
 	}
 }
 
-template <typename T>
-void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, parameter &p){
+template <typename T, typename U>
+void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, U &a, double g){//g=parameter b[5]
 
-	int fluxmethod=p.Flux_method;
+	int fluxmethod=a[7];
 	int j, n=sizeof(uL);
 	double fhL[n], fmL[n], fhR[n], fmR[n],eigL1[n], eigL2[n], eigR1[n], eigR2[n], mL[n], mR[n], sL[n], sR[n],s[n];
-	GetFlux(hL,uL, fhL, fmL, p);
-	GetFlux(hR, uR, fhR, fmR, p);
-	GetEigen(hL,uL,n,eigL1,eigL2,p.g);
-	GetEigen(hR, uR, n, eigR1, eigR2, p.g);
+	GetFlux(hL,uL, fhL, fmL, g);
+	GetFlux(hR, uR, fhR, fmR, g);
+	GetEigen(hL,uL,n,eigL1,eigL2,g);
+	GetEigen(hR, uR, n, eigR1, eigR2, g);
 	for (int j = 0; j < n; j++) {
 		mL[j] = hL[j] * uL[j];
 		mR[j] = hR[j] * uR[j];
