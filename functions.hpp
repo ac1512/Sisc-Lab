@@ -379,7 +379,7 @@ void GetHydroPre(vector<double> &h, double g, vector<double> &p){
 
 template <typename T>
 void GetFlux( T &h, T &u, T &f1, T &f2, double g) {//g=parameter b[5]
-	int n = sizeof(h);
+	int n = h.size();
 	for (int j = 0; j < n;j++) {
 		f1[j] = h[j] * u[j];
 		f2[j] = h[j] * u[j] * u[j] + 0.5*g*h[j] * h[j];
@@ -390,33 +390,33 @@ template <typename T, typename U>
 void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, U &a, double g){//g=parameter b[5]
 
 	int fluxmethod=a[7];
-	int j, n=sizeof(uL);
-	double fhL[n], fmL[n], fhR[n], fmR[n],eigL1[n], eigL2[n], eigR1[n], eigR2[n], mL[n], mR[n], sL[n], sR[n],s[n];
+	int j, n=hL.size();
+	vector<double> fhL(n,0.0), fmL(n,0.0), fhR(n,0.0), fmR(n,0.0),eigL1(n,0.0), eigL2(n,0.0), eigR1(n,0.0), eigR2(n,0.0), mL(n,0.0), mR(n,0.0), sL(n,0.0), sR(n,0.0),s(n,0.0);
 	GetFlux(hL,uL, fhL, fmL, g);
 	GetFlux(hR, uR, fhR, fmR, g);
-	GetEigen(hL,uL,n,eigL1,eigL2,g);
-	GetEigen(hR, uR, n, eigR1, eigR2, g);
+	GetEigen(hL,uL,eigL1,eigL2,g);
+	GetEigen(hR, uR, eigR1, eigR2, g);
 	for (int j = 0; j < n; j++) {
 		mL[j] = hL[j] * uL[j];
 		mR[j] = hR[j] * uR[j];
-		sL[j] = (((eigL1 < eigR1) ? eigL1 : eigR1) < pow(10, -8)) ? ((eigL1 < eigR1) ? eigL1 : eigR1):pow(10, -8);
-		sR[j] = (((eigL2>eigR2) ? eigL2 : eigR2) > pow(10, -8)) ? ((eigL2 > eigR2) ? eigL2 : eigR2):pow(10, -8);
+		sL[j] = min(min(eigL1[j],eigR1[j]), pow(10, -8));
+		sR[j] = max(max(eigL2[j],eigR2[j]), pow(10, -8));
 	}
 	if (fluxmethod == 1) {
 		for (int j = 0; j < n; j++) {
 			s[j] = (sL[j] > sR[j]) ? sL[j] : sR[j];
-			fh[j] = 0.5*(fhL + fhR - s[j] * (hR[j] - hL[j]));
-			fm[j] = 0.5*(fmL + fmR - s[j] * (mR[j] -mL[j]));
+			fh[j] = 0.5*(fhL[j] + fhR[j] - s[j] * (hR[j] - hL[j]));
+			fm[j] = 0.5*(fmL[j] + fmR[j] - s[j] * (mR[j] -mL[j]));
 		}
 	}else if (fluxmethod == 2) {
 		for (int j = 0; j < n; j++) {
-			fh[j] = (sR[j]*fhL - sL[j]* fhR + sL[j] *sR[j]* (hR[j] - hL[j]))/(sR[j]-sL[j]);
-			fm[j] = (sR[j] * fmL - sL[j] * fmR + sL[j] * sR[j] * (mR[j] - mL[j])) / (sR[j] - sL[j]);
+			fh[j] = (sR[j]*fhL[j] - sL[j]* fhR[j] + sL[j] *sR[j]* (hR[j] - hL[j]))/(sR[j]-sL[j]);
+			fm[j] = (sR[j] * fmL[j] - sL[j] * fmR[j] + sL[j] * sR[j] * (mR[j] - mL[j])) / (sR[j] - sL[j]);
 		}
 	}else if (fluxmethod == 3) {
 		for (int j = 0; j < n; j++) {
-			fh[j] = (sR[j] * fhL - sL[j] * fhR - sL[j] * sR[j] * (hL[j] - hR[j])) / (sR[j] - sL[j]);
-			fm[j] = (sR[j] * fmL - sL[j] * fmR - sL[j] * sR[j] * (mL[j] - mR[j])) / (sR[j] - sL[j]);
+			fh[j] = (sR[j] * fhL[j] - sL[j] * fhR[j] - sL[j] * sR[j] * (hL[j] - hR[j])) / (sR[j] - sL[j]);
+			fm[j] = (sR[j] * fmL[j] - sL[j] * fmR[j] - sL[j] * sR[j] * (mL[j] - mR[j])) / (sR[j] - sL[j]);
 		}
 	}
 }
