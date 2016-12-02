@@ -24,17 +24,17 @@ double limit(double dul, double dur, int mth){
 	if(mth==1)
 		du=a*0;
 	else if(mth==2)
-		du=(a<b)?a:b;
+		du=min(a,b);
 	else if(mth==3){
 		double th=1.3;
-		du=((th*a<th*b)?th*a:th*b)<(0.5*(a+b))?((th*a<th*b)?th*a:th*b):(0.5*(a+b));
+		du=max(min(th*a,th*b),0.5*(a+b));
 	}else if(mth==4){
 		double eps=pow(10,-8);
-		du=2*a*b/(((a+b)>eps)?(a+b):eps);
+		du=2*a*b/(max((a+b),eps));
 	}else if (mth==5){
-		double m1=(a<2*b)?a:2*b;
-		double m2=(2*a<b)?2*a:b;
-		du=(m1>m2)?m1:m2;
+		double m1=min(a,2*b);
+		double m2=min(2*a,b);
+		du=max(m1,m2);
 	}else
 		du=0.5*(a+b);
 	du=sign*du;
@@ -90,11 +90,11 @@ void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T 
  	vector<double> bmax(nx + nbc + 1,0.0), bo(nx + nbc + 1,0.0), wmin(nx + nbc + 1,0.0), hLs(nx + nbc + 1,0.0), hRs(nx + nbc + 1,0.0), dpL(nx + nbc + 1,0.0), dpR(nx + nbc + 1,0.0);
 
  	for (j = nbc; j < (nx + nbc + 1); j++) {
- 		bmax[j] = (bL[j] > bR[j]) ? bL[j] : bR[j];
-		wmin[j] = (wL[j] < wR[j]) ? wL[j] : wR[j];
- 		bo[j] = (bmax[j] < wmin[j]) ? bmax[j] : wmin[j];
- 		hLs[j] = ((wL[j] - bo[j]) < hL[j]) ? (wL[j] - bo[j]) : hL[j];
-		hRs[j] = ((wR[j] - bo[j]) < hR[j]) ? (wR[j] - bo[j]) : hR[j];
+ 		bmax[j] = max(bL[j],bR[j]);
+		wmin[j] = min(wL[j],wR[j]);
+ 		bo[j] = min(bmax[j],wmin[j]);
+ 		hLs[j] = min((wL[j] - bo[j]),hL[j]);
+		hRs[j] = min((wR[j] - bo[j]),hR[j]);
  		dpL[j] = g*(hL[j] + hLs[j])*(bo[j]-bL[j]) / 2;
  		dpR[j] = g*(hR[j] + hRs[j])*(bo[j] - bR[j]) / 2;
  	}

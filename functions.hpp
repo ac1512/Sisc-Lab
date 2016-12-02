@@ -399,8 +399,8 @@ void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, U &a, double g){//g=pa
 	for (int j = 0; j < n; j++) {
 		mL[j] = hL[j] * uL[j];
 		mR[j] = hR[j] * uR[j];
-		sL[j] = (((eigL1[j] < eigR1[j]) ? eigL1[j] : eigR1[j]) < pow(10, -8)) ? ((eigL1[j] < eigR1[j]) ? eigL1[j] : eigR1[j]):pow(10, -8);
-		sR[j] = (((eigL2[j]>eigR2[j]) ? eigL2[j] : eigR2[j]) > pow(10, -8)) ? ((eigL2[j] > eigR2[j]) ? eigL2[j] : eigR2[j]):pow(10, -8);
+		sL[j] = min(min(eigL1[j],eigR1[j]), pow(10, -8));
+		sR[j] = max(max(eigL2[j],eigR2[j]), pow(10, -8));
 	}
 	if (fluxmethod == 1) {
 		for (int j = 0; j < n; j++) {
