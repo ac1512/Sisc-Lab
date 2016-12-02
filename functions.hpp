@@ -379,7 +379,7 @@ void GetHydroPre(vector<double> &h, double g, vector<double> &p){
 
 template <typename T>
 void GetFlux( T &h, T &u, T &f1, T &f2, double g) {//g=parameter b[5]
-	int n = sizeof(h);
+	int n = h.size();
 	for (int j = 0; j < n;j++) {
 		f1[j] = h[j] * u[j];
 		f2[j] = h[j] * u[j] * u[j] + 0.5*g*h[j] * h[j];
@@ -390,7 +390,7 @@ template <typename T, typename U>
 void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, U &a, double g){//g=parameter b[5]
 
 	int fluxmethod=a[7];
-	int j, n=sizeof(uL);
+	int j, n=hL.size();
 	vector<double> fhL(n,0.0), fmL(n,0.0), fhR(n,0.0), fmR(n,0.0),eigL1(n,0.0), eigL2(n,0.0), eigR1(n,0.0), eigR2(n,0.0), mL(n,0.0), mR(n,0.0), sL(n,0.0), sR(n,0.0),s(n,0.0);
 	GetFlux(hL,uL, fhL, fmL, g);
 	GetFlux(hR, uR, fhR, fmR, g);

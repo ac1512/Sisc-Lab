@@ -44,7 +44,7 @@ double limit(double dul, double dur, int mth){
 template <typename T, typename U>
 void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T &uR, T &bR, U &a) {
 	int nx = a[1], nbc = a[12];
-	int j, n=sizeof(h);
+	int j, n=h.size();
 	double w[n], dw[nx+nbc+1], db[nx + nbc + 1], du[nx + nbc + 1], dh[nx + nbc + 1];
 	for (j = 0; j < n; j++)
 		w[j] = h[j] + b[j];
@@ -82,8 +82,7 @@ void RecCH( T &x, T &h, T &u, T &b, T &wL, T &hL, T &uL, T &bL, T &wR, T &hR, T 
  void GetRHS(T &x,T &h, T&u, T &b, T &rhsH, T &rhsM, U &a, double g){//g=parameter b[5]
 
  	int nx=a[1], nbc=a[12];
- 	int j, n=nx+nbc+1;//sizeof(u);
-
+ 	int j, n=h.size();
  	vector<double> hL(n,0.0), hR(n,0.0), wL(n,0.0), wR(n,0.0), uL(n,0.0), uR(n,0.0), bL(n,0.0),bR(n,0.0);
  	RecCH(x, h, u, b, wL, hL, uL, bL, wR, hR, uR, bR, a);
 
