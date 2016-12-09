@@ -6,9 +6,21 @@
 #include <math.h>
 #include "PROTOTYPE.h"
 #include <numeric>
+#include <iomanip>
 
 using namespace std;
-const double pi = 3.14159;
+const double pi = 3.141592653589793;
+double maximum(double a,double b)
+{
+  double c;
+  c=(a>b)?a:b;
+  return c;
+}
+double minimum(double a,double b){
+  double c;
+  c=(a<b)?a:b;
+  return c;
+}
 template <typename T,typename U>
 void DMS(T *xL,T *xR,U &a1)  //DMS=Domain Setup
 // void DMS(double *xL,double *xR)
@@ -56,11 +68,12 @@ void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
 {
   double nx=A[1]; //value of expl.
   vector<double> xc;
-  xc.resize(nx+2*A[12]+1,0.0); //A[12] contains nbc;
-  b.resize(nx+2*A[12]+1,0.0);  //same as size of xc and contains the base profile and its the output of the function..
+  xc.resize(nx+2*A[12],0.0); //A[12] contains nbc;
+  b.resize(nx+2*A[12],0.0);  //same as size of xc and contains the base profile and its the output of the function..
   for(int i=0;i<(nx+2*A[12]);i++)
   {
     xc[i]=(x[i]+x[i+1])/2;
+    // cout<<"xc["<<i<<"]="<<xc[i]<<endl;
   }
   if(A[2]==0)
   {
@@ -111,7 +124,7 @@ void setbed(T &x,U &A,T &B,T &b) //T is double vector and U is int vector.
   }
   else if(A[2]==6)
   {
-    for(int i=0;i<(nx+2*A[12]+1);i++)
+    for(int i=0;i<(nx+2*A[12]);i++)
     {
       b[i]=sin(4*pi*xc[i])*(xc[i]<=0.5)+(sin(4*pi*xc[i])-2.0)*(xc[i]>0.5);
       // cout<<"b="<<b[i]<<endl;
@@ -124,7 +137,7 @@ void SetInitU(U &A,T &B, T &x, T &b,T &h, T &u){
 
 	int nx=A[1];
 	int j;
-	T xc(nx,0.0);
+	vector<double> xc(nx,0.0);
 	for(j=0; j<nx;j++)
 		xc[j]=0.5*(x[j]+x[j+1]);
 
@@ -143,22 +156,19 @@ void SetInitU(U &A,T &B, T &x, T &b,T &h, T &u){
 	}else if(A[2]==3){
 		if(A[8]==1){		//test well-balancing
 			for(j=0;j<nx;j++){
-				if (1 - b[j] > 0)
-					h[j] = 1 - b[j];
+				if (1.0 - b[j] > 0)
+					h[j] = 1.0 - b[j];
 				else
-					h[j] = 0;
+					h[j] = 0.0;
 				u[j]=0.0*h[j];
 			}
 		}else{
-			int D=1;
+			double D=1.0;
 			double delta=0.019, gamma,x_a;
 			gamma=sqrt(3*delta/(4*D));
 			x_a=2.178272/gamma;
 			for(j=0;j<nx;j++){
-				if (D + delta / (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a))) - b[j] > 0)
-					h[j] = D + delta / (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a))) - b[j];
-				else
-					h[j] = 0;
+				h[j] = maximum(D + delta / (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a))) - b[j],0);
 				u[j]=sqrt(B[5]/D)*delta/ (cosh(gamma*(xc[j] - x_a))*cosh(gamma*(xc[j] - x_a)));
 			}
 		}
@@ -192,13 +202,13 @@ void SetInitU(U &A,T &B, T &x, T &b,T &h, T &u){
 				if (-1.5 - b[j] > 0)
 					h[j] = -1.5 - b[j];
 				else
-					h[j] = 0;
+					h[j] = 0.0;
 			}
 			else{
 				if (-0.5 - b[j] > 0)
 					h[j] = -0.5 - b[j];
 				else
-					h[j] = 0;
+					h[j] = 0.0;
 			}
 			u[j]=0.0*xc[j];
 		}
@@ -273,7 +283,7 @@ GetMesh(p,Point,Ncell,out);
 // }
 // //   //
   vector<double> i;
-  i.resize(nx+1+2*nbc);
+  i.resize(nx+1+2*nbc,0.0);
   for(int k=0;k<(nx+1+2*nbc);k++)
   {
     i[k]=k+1;
@@ -300,7 +310,7 @@ for(int j=0;j<nx;j++)
 }
 // //   //add setInitU
 SetInitU(A,B,out,b_sec,ho,uo);
-
+// cout<<"ho size="<<ho.size()<<endl;
 }
 //
 //
@@ -320,7 +330,6 @@ void GetEigen(T &h, T &u, T &eigL, T &eigR, double g){
   int i, vec_length;
 
   vec_length = eigL.size();
-
   vector<double> c (vec_length);
 
   GetSound(g, h, c);
@@ -335,9 +344,14 @@ void GetEigen(T &h, T &u, T &eigL, T &eigR, double g){
 template <typename T>
 void GetDt(T &x, T &h, T &u, double *dt, double g, double cfl){
 
+
   double tmp, min;
   int i, size;
 
+  for(int i=0;i<h.size();i++)
+  {
+    // cout<<"cnh["<<setprecision(16)<<fixed<<i<<"]="<<h[i]<<endl;
+  }
   size = x.size() - 1;
 
   vector<double> dx (size);
@@ -365,6 +379,7 @@ void GetDt(T &x, T &h, T &u, double *dt, double g, double cfl){
   }
 
   *dt = tmp;
+
 }
 
 void GetHydroPre(vector<double> &h, double g, vector<double> &p){
@@ -399,12 +414,12 @@ void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, U &a, double g){//g=pa
 	for (int j = 0; j < n; j++) {
 		mL[j] = hL[j] * uL[j];
 		mR[j] = hR[j] * uR[j];
-		sL[j] = min(min(eigL1[j],eigR1[j]), pow(10, -8));
-		sR[j] = max(max(eigL2[j],eigR2[j]), pow(10, -8));
+		sL[j] = minimum(minimum(eigL1[j],eigR1[j]), -1.0e-8);
+		sR[j] = maximum(maximum(eigL2[j],eigR2[j]),1.0e-8);
 	}
 	if (fluxmethod == 1) {
 		for (int j = 0; j < n; j++) {
-			s[j] = (sL[j] > sR[j]) ? sL[j] : sR[j];
+			s[j] = maximum(sL[j],sR[j]);
 			fh[j] = 0.5*(fhL[j] + fhR[j] - s[j] * (hR[j] - hL[j]));
 			fm[j] = 0.5*(fmL[j] + fmR[j] - s[j] * (mR[j] -mL[j]));
 		}
@@ -415,8 +430,8 @@ void GetNumFlux(T &hL, T &uL, T &hR, T &uR, T &fh, T &fm, U &a, double g){//g=pa
 		}
 	}else if (fluxmethod == 3) {
 		for (int j = 0; j < n; j++) {
-			fh[j] = (sR[j] * fhL[j] - sL[j] * fhR[j] - sL[j] * sR[j] * (hL[j] - hR[j])) / (sR[j] - sL[j]);
-			fm[j] = (sR[j] * fmL[j] - sL[j] * fmR[j] - sL[j] * sR[j] * (mL[j] - mR[j])) / (sR[j] - sL[j]);
+			fh[j] = (sR[j] * fhL[j] - sL[j] * fhR[j] + sL[j] * sR[j] * (hL[j] - hR[j])) / (sR[j] - sL[j]);
+			fm[j] = (sR[j] * fmL[j] - sL[j] * fmR[j] + sL[j] * sR[j] * (mL[j] - mR[j])) / (sR[j] - sL[j]);
 		}
 	}
 }
@@ -425,14 +440,14 @@ template <typename T, typename U>
 void SetBDC(U &h0, U &u0, U &b0,
             T &paramvec_a, U &paramvec_b, U &h, U &u, U &b){
   int i, j, b0_length;
-  int nx, iL, iR, nbc, *iBL, *iBR;
+  int nx, iL, iR, nbc;
   double g;
 
   b0_length = b0.size();
 
   nx = paramvec_a[1]; //parameter variable of Nx
   nbc = paramvec_a[12]; //parameter variable of nbc
-  g = paramvec_b[6]; //parameter variable of g
+  g = b[5]; //parameter variable of g//error1
 
   for(i = 0; i < b0_length ; i++){
     b[i] = b0[i];
@@ -441,19 +456,19 @@ void SetBDC(U &h0, U &u0, U &b0,
   for (i = 0; i < nx; i++){
     h[i+nbc] = h0[i];
     u[i+nbc] = u0[i];
+    // cout<<"h and u["<<i+nbc<<"]="<<h[i+nbc]<<"  "<<u[i+nbc]<<endl;
   }
 
   iL = nbc;
   iR = iL + nx - 1;
-
+  int* iBL= new int[iL];
+  int* iBR=new int[nbc];
   for (i = 0; i < iL; i++){
     iBL[i] = i; // indices of lhs ghost cells
   }
-
-  for (i = 0 ; i < nbc; i++){ //TODO :Check the indices properly!
-    iBR[i] = iR + i; // indices of rhs ghost cells
+  for (i = 1; i <= nbc; i++){ //TODO :Check the indices properly!
+    iBR[i-1] = iR + i; // indices of rhs ghost cells
   }
-
   if (paramvec_a[2] == 0){
   // left boundary condition
     for (i = 0; i < nbc; i++){
@@ -584,13 +599,17 @@ void SetBDC(U &h0, U &u0, U &b0,
   else if (paramvec_a[2] == 6){
     for (i = 0; i < iL ; i++){
       h[iBL[i]] = h[iL];
+      //cout<<"ibl[]"<<iBL[i]<<"iL="<<iL<<endl;
       u[iBL[i]] = 0.0;
     }
     for (i = 0 ; i < nbc; i++){
       h[iBR[i]] = h[iR];
+      //cout<<"ibr[]"<<iBR[i]<<"ir="<<iR<<endl;
       u[iBR[i]] = 0.0;
     }
   }
+  delete[] iBR;
+  delete[] iBL;
 }
 
  #endif
