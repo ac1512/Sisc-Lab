@@ -61,7 +61,7 @@ else if(exl == 5)
     }
 else if(exl == 6)
    {
-     tstop= 2.0;
+     tstop= 2.00;
    }
    IT = 0;
    tme = 0.0;
