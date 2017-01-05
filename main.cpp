@@ -17,8 +17,8 @@ int main()
   parameter p;
   vector<int> a;
   vector<double> b,out1,out2,ho,uo;
-  a.resize(12,0.0);
-  b.resize(6,0.0);
+  a.resize(12,0.0); //contains all the parameters that are integers
+  b.resize(6,0.0);  //contains all the paramteters that are double.
   p.set_param();
   p.get_param(a,b);
 //setting up the domain size
@@ -38,6 +38,9 @@ double dt,Nx,g,cfl,itre=0.0,l2;
 ofstream norm_out;
 vector<double> hresult,uresult;
 norm_out.open("l2data.txt",ios::app);
+vector<vector<double> > v1time,v2time; //stores h and hu for all the time steps for using in adjoint.
+v1time.resize(1140,vector<double>(a[0],0.0));
+v2time.resize(1140,vector<double>(a[0],0.0));
 while((b[6]<b[0])&&(a[11]<10000000))
 {
   a[11]=a[11]+1;
@@ -53,15 +56,23 @@ cout<<"dt="<<setprecision(16)<<fixed<<dt<<endl;
  // cout<<"total time="<<b[6]<<endl;
  //copying hresult and u result in cn_u and cn_h
  for(int i=0;i<hresult.size();i++)
-   {ho[i]=hresult[i];
-       l2=l2+ho[i]*ho[i];}
+   {
+     ho[i]=hresult[i]; //contains h for each cells.
+     v1time[a[11]-1][i]=hresult[i];
+     l2=l2+ho[i]*ho[i];
+   }
  for(int i=0;i<uresult.size();i++)
-    uo[i]=uresult[i];
+{
+    uo[i]=uresult[i]; //contains hu for each cells.
+    v2time[a[11]-1][i]=uresult[i];
+}
+//
    cout<<"l2="<<setprecision(16)<<fixed<<sqrt(l2)<<endl;
    itre=itre+1;
    cout<<"itre="<<itre<<endl;
    norm_out<<itre<<"\t"<<sqrt(l2)<<endl;
    l2=0.0;
+
 }
 norm_out.close();
 }
